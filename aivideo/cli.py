@@ -35,6 +35,9 @@ def main():
             a.topic, a.genre, a.lang, a.scenes)
         spath.write_text(json.dumps(data, ensure_ascii=False, indent=2))
     print(f"劇本：{spath}\n標題：{data['title']}")
+    hook = data["scenes"][0]["caption"]
+    if len(hook) > 12:
+        print(f"⚠ 開頭鉤子 {len(hook)} 字（建議 ≤12）：{hook}")
     if a.script_only:
         return
 
@@ -74,7 +77,8 @@ def main():
     final = work / "final.mp4"
     assemble.assemble(clips, [s["caption"] for s in data["scenes"]], final, a.aspect, a.font)
     (work / "publish.txt").write_text(
-        f"{data['title']}\n\n{data['description']}\n\n{' '.join(data['hashtags'])}\n")
+        f"{data['title']}\n\n{data['description']}\n\n{' '.join(data['hashtags'])}\n\n"
+        "【發布前】上傳時請依各平台規定勾選/標示「AI 生成內容」（TikTok、Reels、Shorts 各自的設定位置請以平台官方說明為準）。\n")
     print(f"完成：{final}\n發布文案：{work / 'publish.txt'}")
 
 
