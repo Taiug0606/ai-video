@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import re
 import shutil
 from pathlib import Path
@@ -16,6 +17,7 @@ def main():
     p.add_argument("--aspect", choices=["9:16", "16:9"], default="9:16")
     p.add_argument("--font", help="字幕字型檔路徑（中文需指定，例如 NotoSansCJK）")
     p.add_argument("--script-only", action="store_true", help="只產生劇本，先審稿再花錢生成影片")
+    p.add_argument("--yes", action="store_true", help="跳過花費確認（排程自動跑時才用）")
     p.add_argument("--dry-run", action="store_true", help="不呼叫 API，測試流程")
     a = p.parse_args()
 
@@ -43,6 +45,13 @@ def main():
                                "-f", "lavfi", "-i", "anullsrc", "-t", "2", "-shortest", str(c)])
             clips.append(c)
     else:
+        todo = [i for i in range(1, len(data["scenes"]) + 1) if not (work / f"clip_{i:02d}.mp4").exists()]
+        secs = len(todo) * 8
+        price = os.environ.get("VEO_PRICE_PER_SEC")  # 美元/秒，請依官方最新定價自行設定
+        cost = f"約 US${secs * float(price):.2f}" if price else "（未設定 VEO_PRICE_PER_SEC，無法估價）"
+        print(f"即將用 Veo 生成 {len(todo)} 個片段 ≈ {secs} 秒，預估花費 {cost}")
+        if todo and not a.yes and input("確認開始？輸入 y 繼續：").strip().lower() != "y":
+            raise SystemExit("已取消，未產生費用。")
         clips = video.generate_all(data, work, a.aspect)
 
     final = work / "final.mp4"
