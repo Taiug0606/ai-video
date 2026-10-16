@@ -14,6 +14,14 @@ python -m aivideo.cli "測試" --dry-run                                        
 輸出在 `output/<主題>/`：`script.json`、`clip_XX.mp4`、`final.mp4`、`publish.txt`（標題/描述/標籤）。
 已生成的片段會被重用，中斷後重跑不會重複計費。模型可用 `GEMINI_VIDEO_MODEL` / `GEMINI_TEXT_MODEL` 覆寫。
 
+## 用 Gemini Pro 訂閱額度（不需 API 金鑰）
+```bash
+python -m aivideo.cli x --workdir examples/ep01 --manual     # 產生 prompts.md，列出缺的片段
+# 把 prompts.md 每段貼進 Gemini App / Flow 生成（直式 9:16），下載存成 clip_01.mp4 … 放進該資料夾
+python -m aivideo.cli x --workdir examples/ep01 --manual --font /path/to/NotoSansCJK-Bold.ttc   # 片段齊全後合成
+```
+訂閱額度只算在 Gemini App / Flow，API 金鑰另外計費。
+
 ## 漲粉建議
 - 每支 20–40 秒、直式 9:16，前 1 秒要有鉤子，結尾留反轉/提問。
 - 固定一個系列（同角色、同類型）每天發，比單支爆款更能累積粉絲。
